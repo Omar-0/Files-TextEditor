@@ -19,11 +19,12 @@ public class POO3_U1_EA_OMMA {
      */
     public static void main(String[] args) {
         new Document();
+        new TextEditor_Window();
     }
     
 }
 
-// Clase de ejemplo
+// Clase de ejemplo para el editor de texto
 class Document extends JFrame implements ActionListener
 {
 private JTextArea ta;
