@@ -18,7 +18,7 @@ public class POO3_U1_EA_OMMA {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //new Document();
+        new Document();
         new FileBrowserEditor_Window();
         new TextEditor_Window();
         

@@ -11,9 +11,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -48,9 +50,14 @@ public class TextEditor_Window {
     //El text Area debe ser scrolleable
     private JScrollPane scrollPane;
 
+    //watch dog, cuida cuando el archivo fue editado
+    public boolean watchDoge;
+    //Referencia al archivo actual
+    public File currentFile;   
+
     public TextEditor_Window() {
 
-        //Iniciar componentes
+        //Iniciar componentes GUI
         //Iniciar frame o la ventana
         frame.setLocation(520, 200);
         frame.setVisible(true);
@@ -101,13 +108,13 @@ public class TextEditor_Window {
             public void actionPerformed(ActionEvent arg0) {
                 System.out.println("Clikeado abrir");
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+                //fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
                 int result = fileChooser.showOpenDialog(frame);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     System.out.println("Selected file: " + selectedFile.getAbsolutePath());
                     //una vez abierto el flujo obtener el resultado:
-                    textArea.setText(leerArchivoTexto(selectedFile)); 
+                    textArea.setText(leerArchivoTexto(selectedFile));
                 }
             }
         });
@@ -121,6 +128,11 @@ public class TextEditor_Window {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 System.out.println("Clikeado guardar");
+                if(currentFile != null){
+                    escribirArchivoTexto(textArea.getText(), currentFile);
+                }else{
+                    saveAsDialog();
+                }
             }
         });
         archivo.add(menuItemGuardar);
@@ -133,12 +145,48 @@ public class TextEditor_Window {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 System.out.println("Clikeado guardar como");
+                saveAsDialog();
             }
         });
         archivo.add(menuItemSaveAs);
 
         barra.add(archivo);
 
+    }
+    
+    //Metodo Salvar como dialogo
+    
+    private void saveAsDialog(){
+         JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Guardar Archivo");
+
+                int userSelection = fileChooser.showSaveDialog(frame);
+
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File fileToSave = fileChooser.getSelectedFile();
+                    System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+                    escribirArchivoTexto(textArea.getText(), fileToSave);
+                }
+    }
+
+    //Metodo para escribir el archivo
+    private void escribirArchivoTexto(String contenido, File destinationFile) {
+        try {
+            // if file doesnt exists, then create it
+            if (!destinationFile.exists()) {
+                destinationFile.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(destinationFile.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(contenido);
+            bw.close();
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //Metodo para leer un archivo
@@ -165,6 +213,8 @@ public class TextEditor_Window {
             System.out.println("Erro de lectura '" + file + "'");
 
         }
+        //referencia al archivo actual
+        currentFile = file;
         return full;
     }
 
